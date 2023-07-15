@@ -70,4 +70,37 @@ class PersonRepositoryImplTest {
             });
         });
     }
+
+    @Test
+    void testFluxFilter() {
+        Flux<Person> personFlux = personRepository.findAll();
+        personFlux.filter(person -> person.getFirstName().equalsIgnoreCase("samba"))
+                .subscribe(person -> {
+                    System.out.println(person.toString());
+                });
+    }
+
+    @Test
+    void testGetById() {
+        Mono<Person> personMono = personRepository.findAll().filter(person -> person.getFirstName().equals("Samba"))
+                .next();
+        personMono.subscribe(person -> {
+            System.out.println(person.getFirstName());
+        });
+        }
+
+    @Test
+    void testPersonNotFoundById() {
+        Mono<Person> personFlux = personRepository.findAll().filter(person -> person.getId() == 8).single()
+                .doOnError(throwable -> {
+                    System.out.println("Error occured");
+                    System.out.println(throwable.getMessage());
+                });
+        personFlux.subscribe(person -> {
+            System.out.println(person.toString());
+        }, throwable -> {
+            System.out.println("No person found");
+            System.out.println(throwable.getMessage());
+        });
+    }
 }
