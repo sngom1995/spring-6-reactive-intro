@@ -1,10 +1,12 @@
 package sn.guru.springframework.spring6reactiveexamples.repository;
 
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import sn.guru.springframework.spring6reactiveexamples.domain.Person;
 
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,6 +40,34 @@ class PersonRepositoryImplTest {
     }
 
     @Test
-    void name() {
+    void testFluxBlockFirst() {
+        Flux<Person> personFlux = personRepository.findAll();
+        Person person = personFlux.blockFirst();
+        System.out.println(person.toString());
+    }
+
+    @Test
+    void testFluxSubscriber() {
+        Flux<Person> personFlux = personRepository.findAll();
+        personFlux.subscribe(person -> {
+            System.out.println(person.toString());
+        });
+    }
+
+    @Test
+    void testFluxMap() {
+        Flux<Person> personFlux = personRepository.findAll();
+        personFlux.map(Person::getFirstName).subscribe(System.out::println);
+    }
+
+    @Test
+    void testFluxMonoList(){
+        Flux<Person> personFlux = personRepository.findAll();
+        Mono<List<Person>> personMono = personFlux.collectList();
+        personMono.subscribe(list -> {
+            list.forEach(person -> {
+                System.out.println(person.toString());
+            });
+        });
     }
 }
